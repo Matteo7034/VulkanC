@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 bool init_vulkan(App *app){
+
     VkApplicationInfo appInfo = {0};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.pApplicationName = "Hello Triangle C";
