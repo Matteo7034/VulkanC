@@ -4,7 +4,10 @@
 #include <stdlib.h>
 #include <vulkan/vulkan.h>
 bool create_Instance(App *app){
-
+    if(enableValidationLayers && !checkValidationLayerSupport()){
+        fprintf(stderr,"[ERROR] validation layers requested, but not available!\n");
+        return false;
+    }
     VkApplicationInfo appInfo = {0};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.pApplicationName = "Hello Triangle C";
@@ -39,9 +42,16 @@ bool create_Instance(App *app){
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
     createInfo.enabledExtensionCount = extensionCount;
+    createInfo.enabledExtensionCount = extensionCount;
     createInfo.ppEnabledExtensionNames = requiredExtensions;
-    createInfo.enabledLayerCount = 0;
-
+    if(enableValidationLayers){
+        createInfo.enabledLayerCount = validationLayerCount;
+        createInfo.ppEnabledLayerNames = validationLayers;
+    }
+    else{
+        createInfo.enabledLayerCount = 0;
+        createInfo.ppEnabledLayerNames = NULL;
+    }
     createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
    
     check_available_extensions();

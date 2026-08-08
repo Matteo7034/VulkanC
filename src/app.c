@@ -1,6 +1,7 @@
 #include "app.h"
 #include "init.h"
 #include <stdio.h>
+#include <string.h>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -9,6 +10,7 @@
 #else
     const bool enableValidationLayers = true;
 #endif
+
 const char* validationLayers[]={
     "VK_LAYER_KHRONOS_validation"
 };
@@ -55,4 +57,33 @@ void app_cleanup(App *app){
     }
 }
 
+bool checkValidationLayerSupport(){
+    uint32_t layerCount;
+    vkEnumerateInstanceLayerProperties(&layerCount,NULL);
+    
+    VkLayerProperties* availableLayers = malloc(layerCount*sizeof(VkLayerProperties));
+    if(availableLayers == NULL){
+        fprintf(stderr,"[ERROR] unable to allocate memory to avaiableLayers...\n");
+        return false;
+    }
+    vkEnumerateInstanceLayerProperties(&layerCount,availableLayers);
+
+    for(uint32_t i=0;i<validationLayerCount;i++){
+        bool layerFound =false;
+        for(uint32_t j=0;j<layerCount;j++){
+            if(strcmp(validationLayers[i],availableLayers[j].layerName)==0){
+                layerFound=true;
+                break;
+            }
+        }
+        
+        if(!layerFound){
+            free(availableLayers);
+            return false;
+        }
+    }
+    free(availableLayers);
+
+    return true;
+}
 
