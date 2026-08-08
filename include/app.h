@@ -21,6 +21,7 @@ typedef struct App{
 
 bool app_run(App *app);
 void app_cleanup(App *app);
-void init_window();
+void init_window(App* app);
+bool init_Vulkan(App* app);
 
 #endif

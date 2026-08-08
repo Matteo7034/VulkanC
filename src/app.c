@@ -11,6 +11,10 @@ void init_window(App *app){
     app->window = glfwCreateWindow(WIDTH,HEIGHT,"Vulkan",NULL,NULL);
 }
 
+bool init_Vulkan(App* app){
+    return create_Instance(app);
+}
+
 static void main_loop(App *app){
     while(!glfwWindowShouldClose(app->window)){
         glfwPollEvents();
@@ -19,21 +23,23 @@ static void main_loop(App *app){
 
 bool app_run(App*app){
     init_window(app);
-    if(!init_vulkan(app)){
+    if(!init_Vulkan(app)){
         return false;
     }
     
     main_loop(app);
-    app_cleanup(app);
     return true;
 }
 
 void app_cleanup(App *app){
+    printf("[INFO] Cleaning up...\n");
     if (app->instance != VK_NULL_HANDLE) {
         vkDestroyInstance(app->instance, NULL);
         app->instance = VK_NULL_HANDLE;
     }
-    if (app->window != VK_NULL_HANDLE){
+
+    if(app->window != NULL){
+        printf("[INFO] Cleaning GLFW...\n");
         glfwDestroyWindow(app->window);
         app->window = NULL;
         glfwTerminate();

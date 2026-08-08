@@ -3,6 +3,8 @@
 #include <stdbool.h>
 typedef struct App App;
 
-bool init_vulkan(App *app);
+bool create_Instance(App *app);
+
+void check_available_extensions(void);
 
 #endif
