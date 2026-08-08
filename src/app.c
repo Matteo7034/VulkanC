@@ -4,6 +4,15 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#ifdef NDEBUG
+    const bool enableValidationLayers = false;
+#else
+    const bool enableValidationLayers = true;
+#endif
+const char* validationLayers[]={
+    "VK_LAYER_KHRONOS_validation"
+};
+const uint32_t validationLayerCount = sizeof(validationLayers) / sizeof(validationLayers[0]);
 void init_window(App *app){
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);

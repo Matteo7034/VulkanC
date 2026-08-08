@@ -13,6 +13,12 @@
 #define WIDTH 800
 #define HEIGHT 600
 
+extern const bool enableValidationLayers;
+
+extern const char* validationLayers[];
+extern const uint32_t validationLayerCount;
+
+
 typedef struct App{
     VkInstance instance;
     GLFWwindow* window;
@@ -23,5 +29,6 @@ bool app_run(App *app);
 void app_cleanup(App *app);
 void init_window(App* app);
 bool init_Vulkan(App* app);
+
 
 #endif
