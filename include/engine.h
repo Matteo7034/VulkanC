@@ -22,6 +22,7 @@ extern const uint32_t validationLayerCount;
 typedef struct App{
     VkInstance instance;
     GLFWwindow* window;
+    VkDebugUtilsMessengerEXT debugMessenger;
 }App;
 
 

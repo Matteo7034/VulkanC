@@ -2,6 +2,7 @@
 #include "init.h"
 #include <stdio.h>
 #include <string.h>
+#include "../include/debug.h"
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -23,7 +24,9 @@ void init_window(App *app){
 }
 
 bool init_Vulkan(App* app){
-    return create_Instance(app);
+    if(!create_Instance(app)) return false;
+    if(!setupDebugMessenger(app)) return false;
+    return true;
 }
 
 static void main_loop(App *app){
@@ -44,6 +47,10 @@ bool app_run(App*app){
 
 void app_cleanup(App *app){
     printf("[INFO] Cleaning up...\n");
+    if (enableValidationLayers && app->debugMessenger != VK_NULL_HANDLE) {
+        destroyDebugUtilsMessengerEXT(app->instance, app->debugMessenger, NULL);
+        app->debugMessenger = VK_NULL_HANDLE;
+    }
     if (app->instance != VK_NULL_HANDLE) {
         vkDestroyInstance(app->instance, NULL);
         app->instance = VK_NULL_HANDLE;
