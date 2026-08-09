@@ -1,7 +1,7 @@
 #ifndef INIT_H
 #define INIT_H
 #include <stdbool.h>
-#include "app.h"
+#include "engine.h"
 typedef struct App App;
 
 bool create_Instance(App *app);

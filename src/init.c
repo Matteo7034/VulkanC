@@ -1,5 +1,6 @@
 #include "init.h"
-#include "app.h"
+#include "debug.h"
+#include "engine.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <vulkan/vulkan.h>
@@ -17,31 +18,17 @@ bool create_Instance(App *app){
     appInfo.apiVersion = VK_API_VERSION_1_0;
 
 
+    check_available_extensions();
 
-    uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions;
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
     
-    if (glfwExtensions == NULL) {
-        fprintf(stderr, "[ERROR] impossible to get GLFW extensions!\n");
-        return false;
-    }
-    uint32_t extensionCount = glfwExtensionCount + 1;
-    const char** requiredExtensions = malloc(extensionCount * sizeof(const char*));
-    if (requiredExtensions == NULL) {
-        fprintf(stderr, "[ERROR] not enough to allocate for extensions!\n");
-        return false;
-    }
-    for (uint32_t i =0;i<glfwExtensionCount;i++){
-        requiredExtensions[i] = glfwExtensions[i];
-    }
-    
-    requiredExtensions[glfwExtensionCount] = VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME;
-    
+    //get required Extensions
+    uint32_t extensionCount = 0;
+    const char** requiredExtensions = getRequiredExtensions(&extensionCount);
+    if(requiredExtensions == NULL) return false;
+
     VkInstanceCreateInfo createInfo = {0};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
-    createInfo.enabledExtensionCount = extensionCount;
     createInfo.enabledExtensionCount = extensionCount;
     createInfo.ppEnabledExtensionNames = requiredExtensions;
     if(enableValidationLayers){
@@ -54,7 +41,6 @@ bool create_Instance(App *app){
     }
     createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
    
-    check_available_extensions();
 
     VkResult result = vkCreateInstance(&createInfo, NULL, &app->instance);
     free(requiredExtensions);
@@ -63,7 +49,7 @@ bool create_Instance(App *app){
         return false;
     }
     
-
+    
     return true;
 }
 
@@ -72,6 +58,8 @@ void check_available_extensions(void) {
     printf("[INFO] Available extensions:\n");
     
     uint32_t extensionCount = 0;
+
+
     vkEnumerateInstanceExtensionProperties(NULL, &extensionCount, NULL);
     VkExtensionProperties* extensions = malloc(extensionCount * sizeof(VkExtensionProperties));
     if(extensions == NULL){
