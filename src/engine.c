@@ -47,6 +47,7 @@ bool app_run(App*app){
 
 void app_cleanup(App *app){
     printf("[INFO] Cleaning up...\n");
+    
     if (enableValidationLayers && app->debugMessenger != VK_NULL_HANDLE) {
         destroyDebugUtilsMessengerEXT(app->instance, app->debugMessenger, NULL);
         app->debugMessenger = VK_NULL_HANDLE;

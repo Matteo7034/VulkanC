@@ -80,19 +80,23 @@ void destroyDebugUtilsMessengerEXT(
     }
 }
 
+void populateDebugMessengerCreateInfo(
+        VkDebugUtilsMessengerCreateInfoEXT* createInfo){
+    *createInfo = (VkDebugUtilsMessengerCreateInfoEXT){0};
+    createInfo->sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+    createInfo->messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+        VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | 
+        VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+    createInfo->messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | 
+        VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | 
+        VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+    createInfo->pfnUserCallback = debugCallback;
+}
 bool setupDebugMessenger(App* app) {
     if (!enableValidationLayers) return true;
 
     VkDebugUtilsMessengerCreateInfoEXT createInfo = {0};
-    createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-    createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-                                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-    createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                             VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                             VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-    createInfo.pfnUserCallback = debugCallback;
-    createInfo.pUserData = NULL;
+    populateDebugMessengerCreateInfo(&createInfo);
 
     VkResult result = createDebugUtilsMessengerEXT(app->instance, &createInfo, NULL, &app->debugMessenger);
     if (result != VK_SUCCESS) {
@@ -102,3 +106,5 @@ bool setupDebugMessenger(App* app) {
 
     return true;
 }
+
+

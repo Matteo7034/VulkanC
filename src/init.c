@@ -17,9 +17,7 @@ bool create_Instance(App *app){
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.apiVersion = VK_API_VERSION_1_0;
 
-
     check_available_extensions();
-
     
     //get required Extensions
     uint32_t extensionCount = 0;
@@ -31,25 +29,29 @@ bool create_Instance(App *app){
     createInfo.pApplicationInfo = &appInfo;
     createInfo.enabledExtensionCount = extensionCount;
     createInfo.ppEnabledExtensionNames = requiredExtensions;
+    //Debug
+    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo = {0};
     if(enableValidationLayers){
         createInfo.enabledLayerCount = validationLayerCount;
         createInfo.ppEnabledLayerNames = validationLayers;
+        populateDebugMessengerCreateInfo(&debugCreateInfo);
+        createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
     }
     else{
         createInfo.enabledLayerCount = 0;
         createInfo.ppEnabledLayerNames = NULL;
     }
+    
     createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
    
-
     VkResult result = vkCreateInstance(&createInfo, NULL, &app->instance);
     free(requiredExtensions);
     if (result != VK_SUCCESS) {
-        fprintf(stderr, "Error: Failed to create Vulkan instance! (codice %d)\n", result);
+        fprintf(stderr, 
+                "Error: Failed to create Vulkan instance! (codice %d)\n", result);
         return false;
     }
-    
-    
+     
     return true;
 }
 
