@@ -13,7 +13,7 @@ BUILD_DIR := build
 TARGET    := VulkanTest
 
 # Sorgenti (.c) divise per cartella
-SRC_ENGINE := $(SRC_DIR)/main.c $(SRC_DIR)/engine.c $(SRC_DIR)/init.c
+SRC_ENGINE := $(SRC_DIR)/main.c $(SRC_DIR)/engine.c $(SRC_DIR)/init.c $(SRC_DIR)/device.c
 SRC_UTILS_FILES := $(SRC_UTILS)/debug.c
 
 # Oggetti (.o) mappati correttamente in build/

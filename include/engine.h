@@ -23,6 +23,7 @@ typedef struct App{
     VkInstance instance;
     GLFWwindow* window;
     VkDebugUtilsMessengerEXT debugMessenger;
+    VkPhysicalDevice physicalDevice;
 }App;
 
 

@@ -1,8 +1,10 @@
 #include "engine.h"
 #include "init.h"
+#include "device.h"
 #include <stdio.h>
 #include <string.h>
 #include "../include/debug.h"
+
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -26,6 +28,8 @@ void init_window(App *app){
 bool init_Vulkan(App* app){
     if(!create_Instance(app)) return false;
     if(!setupDebugMessenger(app)) return false;
+    app->physicalDevice = pickPhysicalDevice(app);
+    if(app->physicalDevice == VK_NULL_HANDLE) return false;
     return true;
 }
 
