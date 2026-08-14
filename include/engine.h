@@ -24,6 +24,9 @@ typedef struct App{
     GLFWwindow* window;
     VkDebugUtilsMessengerEXT debugMessenger;
     VkPhysicalDevice physicalDevice;
+    VkDevice device; 
+    VkPhysicalDeviceFeatures deviceFeatures;
+    VkQueue graphicsQueue;
 }App;
 
 

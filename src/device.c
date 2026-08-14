@@ -102,3 +102,38 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device){
     free(queueFamilies);
     return indices;
 }
+
+VkDevice createLogicalDevice(
+        VkPhysicalDevice physicalDevice,
+        VkPhysicalDeviceFeatures deviceFeatures,
+        VkQueue* outGraphicsQueue){
+    QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+
+    VkDeviceQueueCreateInfo queueCreateInfo = {0};
+    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value;
+    queueCreateInfo.queueCount = 1;
+
+    float queuePriority = 1.0f;
+    queueCreateInfo.pQueuePriorities = &queuePriority;
+
+    VkDeviceCreateInfo createInfo={0};
+    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    createInfo.pQueueCreateInfos = &queueCreateInfo;
+    createInfo.queueCreateInfoCount = 1;
+    createInfo.pEnabledFeatures = &deviceFeatures;
+    createInfo.enabledExtensionCount = 0;
+    if(enableValidationLayers){
+        createInfo.enabledLayerCount =validationLayerCount;
+        createInfo.ppEnabledLayerNames = validationLayers;
+    }else{
+        createInfo.enabledLayerCount = 0;
+    }
+
+    VkDevice device = VK_NULL_HANDLE;
+    if(vkCreateDevice(physicalDevice,&createInfo,NULL,&device)!=VK_SUCCESS){
+        fprintf(stderr,"[ERROR] failed to create logical device!\n");
+    }
+    vkGetDeviceQueue(device,indices.graphicsFamily.value,0,outGraphicsQueue);
+    return device;
+}

@@ -30,8 +30,14 @@ bool init_Vulkan(App* app){
     if(!setupDebugMessenger(app)) return false;
     app->physicalDevice = pickPhysicalDevice(app);
     if(app->physicalDevice == VK_NULL_HANDLE) return false;
+    app->device = createLogicalDevice(
+            app->physicalDevice,
+            app->deviceFeatures,
+            &app->graphicsQueue);
+    if(app->device == VK_NULL_HANDLE) return false;
     return true;
 }
+
 
 static void main_loop(App *app){
     while(!glfwWindowShouldClose(app->window)){
@@ -51,7 +57,10 @@ bool app_run(App*app){
 
 void app_cleanup(App *app){
     printf("[INFO] Cleaning up...\n");
-    
+    if(app->device != VK_NULL_HANDLE){
+        vkDestroyDevice(app->device,NULL);
+        app->device = VK_NULL_HANDLE;
+    }
     if (enableValidationLayers && app->debugMessenger != VK_NULL_HANDLE) {
         destroyDebugUtilsMessengerEXT(app->instance, app->debugMessenger, NULL);
         app->debugMessenger = VK_NULL_HANDLE;

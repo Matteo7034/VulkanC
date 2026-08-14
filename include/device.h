@@ -19,7 +19,13 @@ bool isQueueFamilyIndicesComplete(QueueFamilyIndices indices);
 QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
 VkPhysicalDevice pickPhysicalDevice(App* app);
+
 bool isDeviceSuitable(VkPhysicalDevice device);
+
 int rateDeviceSuitability(VkPhysicalDevice device);
 
+VkDevice createLogicalDevice(
+        VkPhysicalDevice physicaldevice,
+        VkPhysicalDeviceFeatures deviceFeatures,
+        VkQueue* outGraphicsQueue);
 #endif
