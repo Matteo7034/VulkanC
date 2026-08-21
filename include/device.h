@@ -1,5 +1,6 @@
 #ifndef DEVICE_H
 #define DEVICE_H
+
 #include<vulkan/vulkan.h>
 #include "engine.h"
 #include <stdbool.h>
@@ -12,20 +13,23 @@ typedef struct OptionalUint32 {
 
 typedef struct QueueFamilyIndices {
     OptionalUint32 graphicsFamily;
+    OptionalUint32 presentFamily;
 } QueueFamilyIndices;
 
 bool isQueueFamilyIndicesComplete(QueueFamilyIndices indices);
 
-QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device,VkSurfaceKHR surface);
 
 VkPhysicalDevice pickPhysicalDevice(App* app);
 
 bool isDeviceSuitable(VkPhysicalDevice device);
 
-int rateDeviceSuitability(VkPhysicalDevice device);
+int rateDeviceSuitability(VkPhysicalDevice device,VkSurfaceKHR surface);
 
 VkDevice createLogicalDevice(
         VkPhysicalDevice physicaldevice,
         VkPhysicalDeviceFeatures deviceFeatures,
-        VkQueue* outGraphicsQueue);
+        VkQueue* outGraphicsQueue,
+        VkQueue* outPresentQueue,
+        VkSurfaceKHR surface);
 #endif

@@ -21,7 +21,7 @@ VkPhysicalDevice pickPhysicalDevice(App* app){
     int highestScore = 0;
 
     for (uint32_t i = 0; i < deviceCount; i++) {
-        int score = rateDeviceSuitability(devices[i]);
+        int score = rateDeviceSuitability(devices[i],app->surface);
 
         if (score > highestScore) {
             bestDevice = devices[i];
@@ -49,9 +49,9 @@ bool isDeviceSuitable(VkPhysicalDevice device){
     return isGpuTypeOk && deviceFeatures.geometryShader;
 }
 
-int rateDeviceSuitability(VkPhysicalDevice device){
+int rateDeviceSuitability(VkPhysicalDevice device,VkSurfaceKHR surface){
     
-    QueueFamilyIndices indices = findQueueFamilies(device);
+    QueueFamilyIndices indices = findQueueFamilies(device,surface);
     if (!isQueueFamilyIndicesComplete(indices)) return 0;
     
     VkPhysicalDeviceProperties deviceProperties;
@@ -72,15 +72,15 @@ int rateDeviceSuitability(VkPhysicalDevice device){
 }
 
 bool isQueueFamilyIndicesComplete(QueueFamilyIndices indices) {
-    return indices.graphicsFamily.has_value;
+    return indices.graphicsFamily.has_value && indices.presentFamily.has_value;
 }
 
 
-QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device){
+
+QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device,VkSurfaceKHR surface){
     QueueFamilyIndices indices = {0};
 
     uint32_t queueFamilyCount = 0;
-
     vkGetPhysicalDeviceQueueFamilyProperties(device,&queueFamilyCount,NULL);
 
     if(queueFamilyCount == 0) return indices;
@@ -93,9 +93,16 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device){
     vkGetPhysicalDeviceQueueFamilyProperties(device,&queueFamilyCount,queueFamilies);
 
     for(uint32_t i = 0; i<queueFamilyCount;i++){
+        VkBool32 presentSupport = false;
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+    
         if(queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT){
             indices.graphicsFamily.value = i;
             indices.graphicsFamily.has_value = true;
+        }
+        if (presentSupport) {
+            indices.presentFamily.value = i;
+            indices.presentFamily.has_value = true;
         }
         if(isQueueFamilyIndicesComplete(indices)) break;
     }
@@ -106,23 +113,34 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device){
 VkDevice createLogicalDevice(
         VkPhysicalDevice physicalDevice,
         VkPhysicalDeviceFeatures deviceFeatures,
-        VkQueue* outGraphicsQueue){
-    QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+        VkQueue* outGraphicsQueue,
+        VkQueue* outPresentQueue,
+        VkSurfaceKHR surface){
+    QueueFamilyIndices indices = findQueueFamilies(physicalDevice,surface);
 
-    VkDeviceQueueCreateInfo queueCreateInfo = {0};
-    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value;
-    queueCreateInfo.queueCount = 1;
+    uint32_t uniqueQueueFamilies[2];
+    uint32_t uniqueQueueCount = 0;
 
+    uniqueQueueFamilies[uniqueQueueCount++] = indices.graphicsFamily.value;
+    if(indices.graphicsFamily.value != indices.presentFamily.value) {
+        uniqueQueueFamilies[uniqueQueueCount++] = indices.presentFamily.value;
+    }
+    VkDeviceQueueCreateInfo queueCreateInfos[2] = {0};
     float queuePriority = 1.0f;
-    queueCreateInfo.pQueuePriorities = &queuePriority;
+    for(uint32_t i =0; i<uniqueQueueCount;i++){
+        queueCreateInfos[i].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queueCreateInfos[i].queueFamilyIndex = uniqueQueueFamilies[i];
+        queueCreateInfos[i].queueCount = 1;
+        queueCreateInfos[i].pQueuePriorities = &queuePriority;
+    }
 
     VkDeviceCreateInfo createInfo={0};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    createInfo.pQueueCreateInfos = &queueCreateInfo;
-    createInfo.queueCreateInfoCount = 1;
+    createInfo.pQueueCreateInfos = queueCreateInfos;
+    createInfo.queueCreateInfoCount = uniqueQueueCount;
     createInfo.pEnabledFeatures = &deviceFeatures;
     createInfo.enabledExtensionCount = 0;
+
     if(enableValidationLayers){
         createInfo.enabledLayerCount =validationLayerCount;
         createInfo.ppEnabledLayerNames = validationLayers;
@@ -135,5 +153,6 @@ VkDevice createLogicalDevice(
         fprintf(stderr,"[ERROR] failed to create logical device!\n");
     }
     vkGetDeviceQueue(device,indices.graphicsFamily.value,0,outGraphicsQueue);
+    vkGetDeviceQueue(device,indices.presentFamily.value,0,outPresentQueue);
     return device;
 }

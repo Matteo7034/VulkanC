@@ -27,6 +27,8 @@ typedef struct App{
     VkDevice device; 
     VkPhysicalDeviceFeatures deviceFeatures;
     VkQueue graphicsQueue;
+    VkQueue presentQueue;
+    VkSurfaceKHR surface;
 }App;
 
 
@@ -35,6 +37,6 @@ void app_cleanup(App *app);
 void init_window(App* app);
 bool init_Vulkan(App* app);
 bool checkValidationLayerSupport();
-
+VkSurfaceKHR createSurface(App* app);
 
 #endif

@@ -26,14 +26,21 @@ void init_window(App *app){
 }
 
 bool init_Vulkan(App* app){
+    //instance
     if(!create_Instance(app)) return false;
     if(!setupDebugMessenger(app)) return false;
+    //surface
+    app->surface = createSurface(app);
+    if(app->surface == VK_NULL_HANDLE) return false;
+    //device
     app->physicalDevice = pickPhysicalDevice(app);
     if(app->physicalDevice == VK_NULL_HANDLE) return false;
     app->device = createLogicalDevice(
             app->physicalDevice,
             app->deviceFeatures,
-            &app->graphicsQueue);
+            &app->graphicsQueue,
+            &app->presentQueue,
+            app->surface);
     if(app->device == VK_NULL_HANDLE) return false;
     return true;
 }
@@ -58,14 +65,22 @@ bool app_run(App*app){
 void app_cleanup(App *app){
     printf("[INFO] Cleaning up...\n");
     if(app->device != VK_NULL_HANDLE){
+        printf("[INFO] Cleaning devices...\n");
         vkDestroyDevice(app->device,NULL);
         app->device = VK_NULL_HANDLE;
     }
+    
     if (enableValidationLayers && app->debugMessenger != VK_NULL_HANDLE) {
+        printf("[INFO] Cleaning DebugMessenger...\n");
         destroyDebugUtilsMessengerEXT(app->instance, app->debugMessenger, NULL);
         app->debugMessenger = VK_NULL_HANDLE;
     }
+    if(app->surface != VK_NULL_HANDLE){
+        printf("[INFO] Cleaning Surface...\n");
+        vkDestroySurfaceKHR(app->instance, app->surface, NULL);
+    }
     if (app->instance != VK_NULL_HANDLE) {
+        printf("[INFO] Cleaning Instance...\n");
         vkDestroyInstance(app->instance, NULL);
         app->instance = VK_NULL_HANDLE;
     }
@@ -108,3 +123,10 @@ bool checkValidationLayerSupport(){
     return true;
 }
 
+VkSurfaceKHR createSurface(App* app){
+    VkSurfaceKHR surface;
+    if(glfwCreateWindowSurface(app->instance,app->window,NULL,&surface) != VK_SUCCESS){
+        fprintf(stderr,"[ERROR] failed to create window surface!\n");
+    }
+    return surface;
+}
