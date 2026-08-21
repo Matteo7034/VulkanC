@@ -43,6 +43,9 @@ const char** getRequiredExtensions(uint32_t *outCount){
     if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
     // Message is important enough to show
     }
+    (void)pUserData;
+    //(VkDebugUtilsMessageTypeFlagsEXT)messageType;
+    (void)messageType;
 
     fprintf(stderr,"[VALIDATION LAYER] %s\n",pCallbackData->pMessage);
     return VK_FALSE;
